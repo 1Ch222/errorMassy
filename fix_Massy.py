@@ -1,15 +1,16 @@
 import os
 from PIL import Image
 
-def process_images(folder_path):
-    # Parcourir tous les fichiers du dossier
-    for filename in os.listdir(folder_path):
-        # Vérifier si le fichier est au format PNG et ne se termine pas par "labelIds.png"
-        if filename.lower().endswith(".png") and not filename.lower().endswith("labelids.png"):
-            file_path = os.path.join(folder_path, filename)
-            process_image(file_path)
+def process_images(folder_path, output_file):
+    with open(output_file, "w") as file:
+        # Parcourir tous les fichiers du dossier
+        for filename in os.listdir(folder_path):
+            # Vérifier si le fichier est au format PNG et ne se termine pas par "labelIds.png"
+            if filename.lower().endswith(".png") and not filename.lower().endswith("labelids.png"):
+                file_path = os.path.join(folder_path, filename)
+                process_image(file_path, file)
 
-def process_image(file_path):
+def process_image(file_path, output_file):
     # Ouvrir l'image
     image = Image.open(file_path)
 
@@ -23,7 +24,9 @@ def process_image(file_path):
     if len(pixels_per_particle) > 0:
         particle_id, particle_pixels = pixels_per_particle[0]
         particle_size = len(particle_pixels)
-        print(f"Taille de la plus grande particule blanche dans {file_path}: {particle_size} pixels")
+        output_file.write(f"Taille de la plus grande particule blanche dans {file_path}: {particle_size} pixels\n")
+    else:
+        output_file.write(f"Aucune particule blanche trouvée dans {file_path}\n")
 
 def convert_to_black_white(image):
     # Convertir l'image en mode RVB
@@ -118,5 +121,6 @@ def flood_fill(image, mask, start_x, start_y):
 
 # Exemple d'utilisation
 folder_path = "/home/poc2014/dataset/temp/INFRA10/semantic_segmentation_truth/val/Massy/"
+output_file = "results.txt"
 
-process_images(folder_path)
+process_images(folder_path, output_file)
